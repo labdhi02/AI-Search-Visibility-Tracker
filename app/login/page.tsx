@@ -1,15 +1,19 @@
 "use client";
 
-// components/CardDemo.tsx
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLogin } from "@/modules/login/hooks/useLogin"; // Import the custom hook
+import { useLogin } from "@/modules/login/hooks/useLogin";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Loading from "../../components/loading";
 import React, { useState } from "react";
+import Image from "next/image";
+import Loading from "@/components/loading";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import { error } from "console";
+
 
 export function LoginPage() {
   const router = useRouter();
@@ -19,10 +23,12 @@ export function LoginPage() {
     password,
     setPassword,
     loading,
-    error,
     success,
     handleSubmit,
-  } = useLogin(() => router.push("/home"));
+  } = useLogin(() => {
+    toast.success("Login successful!");
+    router.push("/home");
+  });
   const [showLoading, setShowLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -31,19 +37,30 @@ export function LoginPage() {
     const minLoading = new Promise((res) => setTimeout(res, 2000));
     await Promise.all([handleSubmit(e), minLoading]);
     setShowLoading(false);
+
+    
+   if (success) {
+      toast.success("Login successful!");
+    }
+    
+    // else if (typeof error === "string" && error) {
+    //   toast.error("Login failed. Please check your credentials.");
+    // }
   };
 
   return (
-    showLoading ? (
-      <Loading />
-    ) : (
-      <div className="flex justify-center items-center min-h-screen">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle>Login to your account</CardTitle>
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      {/* Left side - Login form */}
+      <div className="w-full lg:w-1/2 flex justify-center items-center p-4 sm:p-8 lg:p-12">
+        <Card className="w-full max-w-md bg-white/70 backdrop-blur shadow-lg rounded-2xl border-0">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              Welcome 
+            </CardTitle>
+            <p className="text-slate-600">Sign in to your account</p>
             <CardAction>
-             <Link href="/signup" className="text-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80">
-                Do not have an account? Sign Up
+              <Link href="/signup" className="text-sm font-medium text-indigo-500 hover:text-indigo-600">
+                Don&apos;t have an account? Sign Up
               </Link>
             </CardAction>
           </CardHeader>
@@ -51,7 +68,7 @@ export function LoginPage() {
             <form onSubmit={handleLogin}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-slate-700">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -59,17 +76,12 @@ export function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="bg-white/50 border border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg"
                   />
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
+                    <Label htmlFor="password" className="text-slate-700">Password</Label>
                   </div>
                   <Input
                     id="password"
@@ -77,20 +89,39 @@ export function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white/50 border border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg"
                   />
                 </div>
-                {error && <div className="text-red-500 text-sm">{error}</div>}
-                {success && <div className="text-green-600 text-sm">{success}</div>}
-                <Button type="submit" className="w-full" disabled={loading || showLoading}>
-                  {loading || showLoading ? "Logging in..." : "Login"}
+                <Button 
+                  type="submit" 
+                  className="w-full py-6 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white font-medium rounded-lg shadow-md flex items-center justify-center"
+                  disabled={loading || showLoading}
+                >
+                  {loading || showLoading ? <Loading /> : "Sign in to Account"}
                 </Button>
               </div>
             </form>
           </CardContent>
-          <CardFooter className="flex-col gap-2"></CardFooter>
         </Card>
       </div>
-    )
+      
+      {/* Right side - Login image */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">  
+        {/* Image */}
+        <div className="w-full max-w-md relative">
+          <div className="relative w-full aspect-square">
+            <Image 
+              src="/loginpage.png" 
+              alt="Person working on laptop"
+              width={900}
+              height={900}
+              className="object-contain"
+              priority
+            />
+          </div>                      
+        </div>
+      </div>
+    </div>
   );
 }
 

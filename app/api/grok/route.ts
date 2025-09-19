@@ -27,21 +27,37 @@ export const POST = async (req: NextRequest) => {
     }
 
     // 2️⃣ Call Grok API if not cached
-    const prompt = `Given the following brand name, provide a detailed AI-powered brand analysis as a JSON object with these fields:
+   const prompt = `Given the brand name \"${brandName}\", provide a detailed AI-powered brand analysis strictly as a JSON object with the following fields:
+
 {
-  brand_visibility: string,
-  competitor_mentions: string[],
-  brand_sentiment: string,
-  competitor_analysis: string
+  "brand_visibility": string,
+  "brand_visibility_score": number,
+  "brand_mentions_count": number,
+  "competitor_mentions": string[],
+  "competitor_mentions_count": {
+    "<CompetitorName1>": number,
+    "<CompetitorName2>": number,
+    "<CompetitorName3>": number
+  },
+  "brand_sentiment": string,
+  "brand_sentiment_breakdown": {
+    "positive": number,
+    "neutral": number,
+    "negative": number
+  },
+  "competitor_analysis": string, // detailed competitor comparison as a Markdown bullet list (each competitor and their analysis as a separate bullet point, use '- <CompetitorName>: <analysis>' for each bullet, no asterisks, no paragraph, no numbering)
 }
-Brand: "${brandName}"
 
 Instructions:
-- brand_visibility: Describe how visible the brand is in AI-powered search results and across AI platforms.
-- competitor_mentions: List all major competitors mentioned.
-- brand_sentiment: Summarize the overall sentiment (positive, negative, neutral) towards the brand.
-- competitor_analysis: Provide a detailed analysis of the brand's positioning and comparison with competitors with top 3 competitors in bullet points.
-If you cannot find some fields, return them as empty or null. Only return valid JSON.`;
+1. Provide textual description for brand_visibility based on AI search and platform presence.
+2. Provide numeric brand_visibility_score (0-100).
+3. Provide an estimated total mention count for the brand in brand_mentions_count.
+4. List major competitors in competitor_mentions.
+5. For competitor_mentions_count, use the actual competitor names as keys, not "Competitor1".
+6. Summarize overall brand sentiment in brand_sentiment.
+7. Provide approximate percentages for positive, neutral, and negative sentiment in brand_sentiment_breakdown.
+8. competitor_analysis: Provide a detailed analysis of the brand's positioning and comparison with competitors as a Markdown bullet list (use '- <CompetitorName>: <analysis>' for each competitor, no asterisks, no paragraph, no numbering).
+9. Only return valid JSON. If a field cannot be determined, use empty string, 0, or empty object.`;
 
     const response = await client.responses.create({
       model: 'openai/gpt-oss-20b',

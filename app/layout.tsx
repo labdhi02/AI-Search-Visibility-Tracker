@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import "./globals.css";
-import QueryProvider from "../components/ui/QueryProvider";
-
+// import QueryProvider from "../components/ui/QueryProvider";
 
 export const metadata: Metadata = {
   title: "AI Search Visibility",
@@ -17,9 +18,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
+        {/* <QueryProvider> */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           {children}
-        </QueryProvider>
+        {/* </QueryProvider> */}
       </body>
     </html>
   );

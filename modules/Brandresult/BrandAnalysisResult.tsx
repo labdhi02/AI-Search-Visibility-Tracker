@@ -3,9 +3,18 @@ import BrandAnalysisDisplay from "./BrandAnalysisDisplay";
 
 type AnalysisData = {
   brand_visibility?: string;
+  brand_visibility_score?: number;
+  brand_mentions_count?: number;
   competitor_mentions?: string[];
+  competitor_mentions_count?: Record<string, number>;
   brand_sentiment?: string;
+  brand_sentiment_breakdown?: {
+    positive?: number;
+    neutral?: number;
+    negative?: number;
+  };
   competitor_analysis?: string;
+  brand_analysis_summary?: string;
 };
 
 type ApiResult = {
@@ -21,9 +30,14 @@ const normalize = (obj: unknown): AnalysisData => {
   const data = obj as Partial<AnalysisData> | undefined;
   return {
     brand_visibility: data?.brand_visibility || "",
+    brand_visibility_score: typeof data?.brand_visibility_score === "number" ? data.brand_visibility_score : 0,
+    brand_mentions_count: typeof data?.brand_mentions_count === "number" ? data.brand_mentions_count : 0,
     competitor_mentions: Array.isArray(data?.competitor_mentions) ? data.competitor_mentions : [],
+    competitor_mentions_count: typeof data?.competitor_mentions_count === "object" && data?.competitor_mentions_count !== null ? data.competitor_mentions_count : {},
     brand_sentiment: data?.brand_sentiment || "",
+    brand_sentiment_breakdown: typeof data?.brand_sentiment_breakdown === "object" && data?.brand_sentiment_breakdown !== null ? data.brand_sentiment_breakdown : {},
     competitor_analysis: data?.competitor_analysis || "",
+    brand_analysis_summary: data?.brand_analysis_summary || "",
   };
 };
 
@@ -113,15 +127,27 @@ export default function BrandAnalysisResult({ brandName, selectedApi }: Props) {
     })();
   }, [brandName, state.gemini, state.serp, state.grok, state.loading, state.stored]);
 
+  // Helper to get normalized data for display
+  const getDisplayData = () => {
+    return {
+      gemini: state.gemini ? normalize(state.gemini.gemini) : undefined,
+      serp: state.serp ? normalize(state.serp.googleSerpAnalysis) : undefined,
+      grok: state.grok ? normalize(state.grok.grok) : undefined,
+    };
+  };
+
   if (!brandName) return null;
+
+  const displayData = getDisplayData();
 
   return (
     <BrandAnalysisDisplay
-      geminiResults={selectedApi === "All" || selectedApi === "Gemini" ? state.gemini : null}
-      serpResults={selectedApi === "All" || selectedApi === "Google SERP" ? state.serp : null}
-      grokResults={selectedApi === "All" || selectedApi === "Grok" ? state.grok : null}
+      geminiResults={selectedApi === "All" || selectedApi === "Gemini" ? displayData.gemini : undefined}
+      serpResults={selectedApi === "All" || selectedApi === "Google SERP" ? displayData.serp : undefined}
+      grokResults={selectedApi === "All" || selectedApi === "Grok" ? displayData.grok : undefined}
       loading={state.loading}
       sheetStatus={state.sheetStatus}
+      brandName={brandName}
     />
   );
 }

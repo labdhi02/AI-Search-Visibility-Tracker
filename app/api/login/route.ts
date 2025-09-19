@@ -12,10 +12,13 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const { pEmail, pPassword } = await req.json();
+    const body = await req.json();
+    const { pEmail, pPassword } = body || {};
+
     if (!pEmail || !pPassword) {
       return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
     }
+
     const result = await pool.query('SELECT "id", "email", "username" FROM "user" WHERE "email" = $1 AND "password" = crypt($2, "password")', [pEmail, pPassword]);
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

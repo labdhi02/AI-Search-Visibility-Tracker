@@ -39,20 +39,37 @@ export async function POST(req: NextRequest) {
     const serpText = topResults.map((r: OrganicResult, i: number) => `Result ${i + 1}:\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
 
     // GEMINI ANALYSIS ON SERP 
-    const serpPrompt = `Given the following brand name, provide a detailed AI-powered brand analysis as a JSON object with these fields:
+    const serpPrompt = `Given the brand name \"${brandName}\", provide a detailed AI-powered brand analysis strictly as a JSON object with the following fields:
+
     {
-      brand_visibility: string,
-      competitor_mentions: string[],
-      brand_sentiment: string,
-      competitor_analysis: string
+      \"brand_visibility\": string,                     // textual description of brand visibility across AI-powered search results and platforms
+      \"brand_visibility_score\": number,              // numeric score 0-100 representing overall visibility
+      \"brand_mentions_count\": number,                // estimated number of mentions of the brand across AI platforms
+      \"competitor_mentions\": string[],               // list of top competitors
+      \"competitor_mentions_count\": {                 // estimated numeric mentions for top 3 competitors
+        \"Competitor1\": number,
+        \"Competitor2\": number,
+        \"Competitor3\": number
+      },
+      \"brand_sentiment\": string,                     // overall sentiment: positive, neutral, negative
+      \"brand_sentiment_breakdown\": {                // approximate percentages summing to 100
+        \"positive\": number,
+        \"neutral\": number,
+        \"negative\": number
+      },
+      \"competitor_analysis\": string,                 // detailed competitor comparison as a Markdown bullet list (each competitor and their analysis as a separate bullet point, use '- ' for each bullet, no asterisks, no paragraph, no numbering)
     }
-    Brand: "${brandName}"
 
     Instructions:
-    - brand_visibility: Describe how visible the brand is in AI-powered search results and across AI platforms.
-    - competitor_mentions: List all major competitors mentioned.
-    - brand_sentiment: Summarize the overall sentiment (positive, negative, neutral) towards the brand.
-    - competitor_analysis: Provide a detailed analysis of the brand's positioning and comparison with competitors with top 3 competitors in bullet points.
+    1. Provide textual description for brand_visibility based on AI search and platform presence.
+    2. Provide numeric brand_visibility_score (0-100).
+    3. Provide an estimated total mention count for the brand in brand_mentions_count.
+    4. List major competitors in competitor_mentions.
+    5. Estimate mentions for top 3 competitors in competitor_mentions_count.
+    6. Summarize overall brand sentiment in brand_sentiment.
+    7. Provide approximate percentages for positive, neutral, and negative sentiment in brand_sentiment_breakdown.
+    8. competitor_analysis: Provide a detailed analysis of the brand's positioning and comparison with competitors as a Markdown bullet list (use '- ' for each competitor, no asterisks, no paragraph, no numbering).
+    9. Only return valid JSON. If a field cannot be determined, use empty string, 0, or empty object.
 
     Top 5 Google search results:
     ${serpText}

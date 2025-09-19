@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       \"brand_visibility\": string,                     // textual description of brand visibility across AI-powered search results and platforms
       \"brand_visibility_score\": number,              // numeric score 0-100 representing overall visibility
       \"brand_mentions_count\": number,                // estimated number of mentions of the brand across AI platforms
-      \"competitor_mentions\": string[],               // list of top competitors
+      \"competitor_mentions\": string[],                // list of top competitors
       \"competitor_mentions_count\": {                 // estimated numeric mentions for top 3 competitors
         \"Competitor1\": number,
         \"Competitor2\": number,
@@ -39,8 +39,7 @@ export async function POST(req: NextRequest) {
         \"neutral\": number,
         \"negative\": number
       },
-      \"competitor_analysis\": string,                 // detailed competitor comparison in plain bullet points (one per line, no asterisks)
-
+      \"competitor_analysis\": string,                 // detailed competitor comparison as a Markdown bullet list (each competitor and their analysis as a separate bullet point, use '- ' for each bullet, no asterisks, no paragraph)
     }
 
     Instructions:
@@ -51,7 +50,7 @@ export async function POST(req: NextRequest) {
     5. Estimate mentions for top 3 competitors in competitor_mentions_count.
     6. Summarize overall brand sentiment in brand_sentiment.
     7. Provide approximate percentages for positive, neutral, and negative sentiment in brand_sentiment_breakdown.
-    8. Competitor_analysis must list each competitor comparison in a separate line without asterisks.
+    8. competitor_analysis: Provide a detailed analysis of the brand's positioning and comparison with competitors as a Markdown bullet list (use '- ' for each competitor, no asterisks, no paragraph, no numbering).
     9. Only return valid JSON. If a field cannot be determined, use empty string, 0, or empty object.`;
 
     const geminiRes = await fetch(
